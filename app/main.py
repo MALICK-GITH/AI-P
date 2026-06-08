@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 from pathlib import Path
 
@@ -17,6 +18,8 @@ from app.services.prediction_service import PredictionService
 
 BASE_DIR = Path(__file__).resolve().parent
 MODELS_DIR = BASE_DIR / "models"
+PROJECT_ROOT = BASE_DIR.parent
+INTEGRATION_MANIFEST_PATH = PROJECT_ROOT / "platform_integration.json"
 
 logger = logging.getLogger("one_delux_ai_2")
 
@@ -38,6 +41,42 @@ app.add_middleware(
 app.include_router(status_router)
 app.include_router(models_router)
 app.include_router(predict_router)
+
+
+@app.get("/")
+def root() -> JSONResponse:
+    return JSONResponse(
+        content={
+            "status": "ok",
+            "name": "ONE DELUX AI 3.0",
+            "version": "3.0.0",
+            "docs": "/docs",
+            "openapi": "/openapi.json",
+            "health": "/api/status",
+            "models": "/api/models",
+            "predict": "/api/predict",
+            "integration_manifest": "/platform_integration.json",
+        }
+    )
+
+
+@app.get("/health")
+def health() -> JSONResponse:
+    service = app.state.prediction_service
+    return JSONResponse(content={"status": "ok", "models_loaded": service.models_loaded})
+
+
+@app.get("/platform_integration.json")
+def platform_integration_manifest() -> JSONResponse:
+    if INTEGRATION_MANIFEST_PATH.exists():
+        return JSONResponse(content=json.loads(INTEGRATION_MANIFEST_PATH.read_text(encoding="utf-8")))
+    return JSONResponse(
+        content={
+            "detail": "Integration manifest not found",
+            "path": str(INTEGRATION_MANIFEST_PATH),
+        },
+        status_code=404,
+    )
 
 
 @app.on_event("startup")
