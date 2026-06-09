@@ -1,269 +1,380 @@
 {
-  "name": "AI-P Platform Integration Manifest",
-  "version": "1.1.0",
-  "base_url": "https://ai-p-hcuo.onrender.com",
-  "content_type": "application/json",
-  "platform": "FastAPI",
-  "auth": {
-    "type": "none"
-  },
-  "usage": {
-    "description": "Another platform can call these endpoints directly to retrieve predictions and service metadata.",
-    "required_headers": {
-      "Content-Type": "application/json"
-    }
-  },
-  "navigation": {
-    "root": "/",
-    "health": "/health",
-    "docs": "/docs",
-    "openapi": "/openapi.json",
-    "integration_manifest": "/platform_integration.json"
-  },
-  "endpoints": [
-    {
-      "method": "GET",
-      "path": "/",
-      "purpose": "Root JSON entrypoint for platform discovery",
-      "response_example": {
-        "status": "ok",
-        "name": "ONE DELUX AI 3.0",
-        "version": "3.0.0",
-        "docs": "/docs",
-        "openapi": "/openapi.json",
-        "health": "/api/status",
-        "models": "/api/models",
-        "predict": "/api/predict",
-        "integration_manifest": "/platform_integration.json"
-      }
+  "integration_manifest": {
+    "system_info": {
+      "name": "ONE DELUX AI 3.0",
+      "version": "3.0.0",
+      "type": "Football Prediction API",
+      "status": "production_ready",
+      "provider": "SOLITAIRE HACK"
     },
-    {
-      "method": "GET",
-      "path": "/health",
-      "purpose": "Simple health check for uptime monitors",
-      "response_example": {
-        "status": "ok",
-        "models_loaded": 4
-      }
+    "deployment": {
+      "production_url": "https://ai-p-hcuo.onrender.com",
+      "health_endpoint": "/health",
+      "api_base_path": "/api",
+      "documentation_url": "https://ai-p-hcuo.onrender.com/docs",
+      "openapi_spec": "https://ai-p-hcuo.onrender.com/openapi.json"
     },
-    {
-      "method": "GET",
-      "path": "/platform_integration.json",
-      "purpose": "Machine-readable integration manifest for other platforms"
+    "authentication": {
+      "required": false,
+      "type": "none",
+      "rate_limiting": "none",
+      "cors_enabled": true
     },
-    {
-      "method": "GET",
-      "path": "/docs",
-      "purpose": "Interactive Swagger documentation"
-    },
-    {
-      "method": "GET",
-      "path": "/openapi.json",
-      "purpose": "OpenAPI schema for SDKs and tooling"
-    },
-    {
-      "method": "GET",
-      "path": "/api/status",
-      "purpose": "Check service availability and number of loaded models",
-      "response_example": {
-        "status": "ok",
-        "models_loaded": 4
-      }
-    },
-    {
-      "method": "GET",
-      "path": "/api/models",
-      "purpose": "List loaded models and their metadata",
-      "response_example": {
-        "models": [
-          {
-            "name": "over_under_2.5.joblib",
-            "target": "over_under_2.5",
-            "model_type": "random_forest_csv_baseline",
-            "trained_at": "2026-06-08T04:53:10.658418",
-            "feature_columns": [
-              "team_home_encoded",
-              "team_away_encoded",
-              "league_encoded",
-              "league_group_encoded",
-              "home_form_rate",
-              "away_form_rate",
-              "home_attack_avg",
-              "away_attack_avg",
-              "home_defense_avg",
-              "away_defense_avg",
-              "head_to_head_matches",
-              "head_to_head_home_winrate",
-              "hour",
-              "day_of_week"
-            ],
-            "encoders": [
-              "team_home",
-              "team_away",
-              "league",
-              "league_group"
-            ],
-            "metrics": {
-              "accuracy": 0.8559633027522936,
-              "balanced_accuracy": 0.5549916679291016
-            },
-            "model_class": "RandomForestClassifier",
-            "n_features_in": 14,
-            "pipeline_steps": []
-          }
-        ]
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/api/predict",
-      "purpose": "Full fused prediction response",
-      "required_headers": {
-        "Content-Type": "application/json"
+    "endpoints": {
+      "root": {
+        "method": "GET",
+        "path": "/",
+        "description": "System information and capabilities",
+        "response_type": "json",
+        "cacheable": true,
+        "timeout": 10
       },
-      "request_schema": {
-        "league": "string",
-        "homeTeam": "string",
-        "awayTeam": "string",
-        "home_odds": "number",
-        "draw_odds": "number",
-        "away_odds": "number",
-        "match_datetime": "optional datetime string",
-        "home_form_rate": "optional number",
-        "away_form_rate": "optional number",
-        "home_attack_avg": "optional number",
-        "away_attack_avg": "optional number",
-        "home_defense_avg": "optional number",
-        "away_defense_avg": "optional number",
-        "head_to_head_matches": "optional integer",
-        "head_to_head_home_winrate": "optional number"
+      "health": {
+        "method": "GET",
+        "path": "/health",
+        "description": "Health check endpoint",
+        "response_type": "json",
+        "cacheable": false,
+        "timeout": 5
       },
-      "constraints": [
-        "Do not invent new features.",
-        "Do not change column order.",
-        "Use the same encoders and preprocessing as training."
-      ],
-      "response_example": {
-        "home_goals": 2,
-        "away_goals": 1,
-        "total_goals": 3,
-        "over_under_2_5": "OVER",
-        "score_prediction": "2-1",
-        "confidence": 80.0,
-        "source": "ONE DELUX AI 2.0"
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/api/predict/fusion",
-      "purpose": "Return the fused prediction payload",
-      "response_example": {
-        "home_goals": 2,
-        "away_goals": 1,
-        "total_goals": 3,
-        "over_under_2_5": "OVER",
-        "score_prediction": "2-1",
-        "confidence": 79.9,
-        "source": "ONE DELUX AI 2.0"
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/api/predict/over-under",
-      "purpose": "Predict over/under 2.5 goals",
-      "response_example": {
-        "over_under_2_5": "OVER",
-        "confidence": 69.2,
-        "source": "ONE DELUX AI 2.0"
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/api/predict/home-goals",
-      "purpose": "Predict home goals",
-      "response_example": {
-        "home_goals": 2,
-        "source": "ONE DELUX AI 2.0"
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/api/predict/away-goals",
-      "purpose": "Predict away goals",
-      "response_example": {
-        "away_goals": 1,
-        "source": "ONE DELUX AI 2.0"
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/api/predict/total-goals",
-      "purpose": "Predict total goals",
-      "response_example": {
-        "total_goals": 3,
-        "source": "ONE DELUX AI 2.0"
-      }
-    }
-  ],
-  "model_contract": {
-    "models_loaded": 4,
-    "model_files": [
-      "over_under_2.5.joblib",
-      "team_home_goals.joblib",
-      "team_away_goals.joblib",
-      "match_total_goals.joblib"
-    ],
-    "feature_columns": [
-      "team_home_encoded",
-      "team_away_encoded",
-      "league_encoded",
-      "league_group_encoded",
-      "home_form_rate",
-      "away_form_rate",
-      "home_attack_avg",
-      "away_attack_avg",
-      "home_defense_avg",
-      "away_defense_avg",
-      "head_to_head_matches",
-      "head_to_head_home_winrate",
-      "hour",
-      "day_of_week"
-    ],
-    "feature_builder_rules": [
-      "Do not invent new features.",
-      "Keep the same column order as training.",
-      "Reuse the same label encoders and normalization rules.",
-      "Use the same preprocessing pipeline as the training script."
-    ],
-    "error_contract": {
-      "validation_error": {
-        "detail": "Validation error",
-        "errors": {
-          "0": "field required"
+      "status": {
+        "method": "GET",
+        "path": "/api/status",
+        "description": "System status and models loaded",
+        "response_type": "json",
+        "cacheable": true,
+        "timeout": 10
+      },
+      "performance": {
+        "method": "GET",
+        "path": "/api/performance",
+        "description": "Performance metrics and cache statistics",
+        "response_type": "json",
+        "cacheable": true,
+        "timeout": 10
+      },
+      "models": {
+        "method": "GET",
+        "path": "/api/models",
+        "description": "List all available ML models",
+        "response_type": "json",
+        "cacheable": true,
+        "timeout": 10
+      },
+      "contexts": {
+        "method": "GET",
+        "path": "/api/models/contexts",
+        "description": "Available prediction contexts",
+        "response_type": "json",
+        "cacheable": true,
+        "timeout": 10
+      },
+      "model_select": {
+        "method": "GET",
+        "path": "/api/models/select",
+        "description": "Select optimal model based on context",
+        "response_type": "json",
+        "cacheable": true,
+        "timeout": 10,
+        "parameters": {
+          "league": {"type": "string", "required": false, "description": "Competition name"},
+          "game_mode": {"type": "string", "required": false, "description": "Game mode (penalty, 3x3, 4x4, 5x5, rush)"},
+          "game_version": {"type": "string", "required": false, "description": "Game version (FIFA23, FC24, FC25, FC26)"}
         }
       },
-      "not_found": {
-        "detail": "Not Found"
+      "recommendations": {
+        "method": "GET",
+        "path": "/api/models/recommendations",
+        "description": "Get model recommendations based on usage patterns",
+        "response_type": "json",
+        "cacheable": true,
+        "timeout": 10
       },
-      "internal_error": {
-        "detail": "Internal server error"
+      "predict": {
+        "method": "POST",
+        "path": "/api/predict",
+        "description": "Main prediction endpoint with intelligent routing",
+        "response_type": "json",
+        "cacheable": true,
+        "timeout": 30,
+        "request_schema": {
+          "league": {"type": "string", "required": true, "min_length": 2, "max_length": 120},
+          "home_team": {"type": "string", "required": true, "min_length": 1, "max_length": 120},
+          "away_team": {"type": "string", "required": true, "min_length": 1, "max_length": 120},
+          "home_odds": {"type": "number", "required": true, "minimum": 1.0, "maximum": 1000.0},
+          "draw_odds": {"type": "number", "required": true, "minimum": 1.0, "maximum": 1000.0},
+          "away_odds": {"type": "number", "required": true, "minimum": 1.0, "maximum": 1000.0},
+          "match_datetime": {"type": "string", "required": false, "format": "ISO8601"},
+          "home_form_rate": {"type": "number", "required": false, "minimum": 0.0, "maximum": 1.0, "default": 0.5},
+          "away_form_rate": {"type": "number", "required": false, "minimum": 0.0, "maximum": 1.0, "default": 0.5},
+          "home_attack_avg": {"type": "number", "required": false, "minimum": 0.0, "maximum": 20.0, "default": 1.5},
+          "away_attack_avg": {"type": "number", "required": false, "minimum": 0.0, "maximum": 20.0, "default": 1.5},
+          "home_defense_avg": {"type": "number", "required": false, "minimum": 0.0, "maximum": 20.0, "default": 1.5},
+          "away_defense_avg": {"type": "number", "required": false, "minimum": 0.0, "maximum": 20.0, "default": 1.5},
+          "head_to_head_matches": {"type": "integer", "required": false, "minimum": 0, "maximum": 1000, "default": 0},
+          "head_to_head_home_winrate": {"type": "number", "required": false, "minimum": 0.0, "maximum": 1.0, "default": 0.5},
+          "game_mode": {"type": "string", "required": false, "enum": ["penalty", "3x3", "4x4", "5x5", "rush"]},
+          "game_version": {"type": "string", "required": false, "enum": ["FIFA23", "FC24", "FC25", "FC26"]},
+          "force_model": {"type": "string", "required": false, "description": "Force specific model name"}
+        }
+      },
+      "predict_over_under": {
+        "method": "POST",
+        "path": "/api/predict/over-under",
+        "description": "Over/Under 2.5 prediction",
+        "response_type": "json",
+        "cacheable": true,
+        "timeout": 30,
+        "request_schema": "$predict.request_schema"
+      },
+      "predict_home_goals": {
+        "method": "POST",
+        "path": "/api/predict/home-goals",
+        "description": "Home goals prediction",
+        "response_type": "json",
+        "cacheable": true,
+        "timeout": 30,
+        "request_schema": "$predict.request_schema"
+      },
+      "predict_away_goals": {
+        "method": "POST",
+        "path": "/api/predict/away-goals",
+        "description": "Away goals prediction",
+        "response_type": "json",
+        "cacheable": true,
+        "timeout": 30,
+        "request_schema": "$predict.request_schema"
+      },
+      "predict_total_goals": {
+        "method": "POST",
+        "path": "/api/predict/total-goals",
+        "description": "Total goals prediction",
+        "response_type": "json",
+        "cacheable": true,
+        "timeout": 30,
+        "request_schema": "$predict.request_schema"
+      },
+      "cache_clear": {
+        "method": "POST",
+        "path": "/api/cache/clear",
+        "description": "Clear prediction cache",
+        "response_type": "json",
+        "cacheable": false,
+        "timeout": 10
+      }
+    },
+    "models": {
+      "total_count": 16,
+      "type": "RandomForestClassifier",
+      "features_count": 19,
+      "available_models": [
+        {
+          "name": "Penalty.pkl",
+          "type": "generic",
+          "description": "Generic penalty model"
+        },
+        {
+          "name": "FIFA23_Penalty.pkl",
+          "type": "version_specific",
+          "game_version": "FIFA23"
+        },
+        {
+          "name": "FC24_Penalty.pkl",
+          "type": "version_specific",
+          "game_version": "FC24"
+        },
+        {
+          "name": "FC25_Penalty.pkl",
+          "type": "version_specific",
+          "game_version": "FC25"
+        },
+        {
+          "name": "FC26_Penalty.pkl",
+          "type": "version_specific",
+          "game_version": "FC26"
+        },
+        {
+          "name": "FC_24_4x4_Championnat_d'Angleterre.pkl",
+          "type": "competition_specific",
+          "competition": "championship",
+          "country": "england",
+          "game_mode": "4x4"
+        },
+        {
+          "name": "FC_25_3x3_Ligue_de_conférence.pkl",
+          "type": "competition_specific",
+          "competition": "conference_league",
+          "game_mode": "3x3"
+        },
+        {
+          "name": "FC_25_Championnat_d'Allemagne.pkl",
+          "type": "competition_specific",
+          "competition": "championship",
+          "country": "germany"
+        },
+        {
+          "name": "FC_25_Championnat_d'Angleterre.pkl",
+          "type": "competition_specific",
+          "competition": "championship",
+          "country": "england"
+        },
+        {
+          "name": "FC_25_Championnat_d'Espagne.pkl",
+          "type": "competition_specific",
+          "competition": "championship",
+          "country": "spain"
+        },
+        {
+          "name": "FC_25_Champions_League.pkl",
+          "type": "competition_specific",
+          "competition": "champions_league"
+        },
+        {
+          "name": "FC_25_Italy_Championship.pkl",
+          "type": "competition_specific",
+          "competition": "championship",
+          "country": "italy"
+        },
+        {
+          "name": "FC_25_Ligue_européenne.pkl",
+          "type": "competition_specific",
+          "competition": "europa_league"
+        },
+        {
+          "name": "FC_26_5x5_Rush_Superligue.pkl",
+          "type": "competition_specific",
+          "game_mode": "5x5"
+        },
+        {
+          "name": "FC_26_Championnat_du_monde.pkl",
+          "type": "competition_specific",
+          "competition": "world_cup"
+        },
+        {
+          "name": "FC_26_Champions_League.pkl",
+          "type": "competition_specific",
+          "competition": "champions_league",
+          "game_version": "FC26"
+        }
+      ]
+    },
+    "contexts": {
+      "game_modes": ["3x3", "4x4", "5x5", "penalty", "rush"],
+      "competitions": ["champions_league", "championship", "conference_league", "europa_league", "world_cup"],
+      "countries": ["england", "germany", "italy", "spain"],
+      "game_versions": ["FIFA23", "FC24", "FC25", "FC26"]
+    },
+    "performance": {
+      "cache": {
+        "enabled": true,
+        "max_size": 1000,
+        "ttl_seconds": 300,
+        "typical_hit_rate": "70-85%",
+        "performance_improvement": ">1000x"
+      },
+      "response_times": {
+        "first_request_cache_miss": "6-8 seconds",
+        "cached_request_hit": "<0.001 seconds",
+        "health_check": "<1 second"
+      },
+      "capacity": {
+        "models_loaded": 16,
+        "predictions_per_second_no_cache": "10-20",
+        "predictions_per_second_with_cache": "1000+"
+      }
+    },
+    "response_schemas": {
+      "prediction_response": {
+        "home_goals": {"type": "integer", "range": "0-20"},
+        "away_goals": {"type": "integer", "range": "0-20"},
+        "total_goals": {"type": "integer", "range": "0-40"},
+        "over_under_2_5": {"type": "string", "enum": ["OVER", "UNDER"]},
+        "score_prediction": {"type": "string", "format": "X-Y"},
+        "confidence": {"type": "number", "range": "0.0-100.0"},
+        "source": {"type": "string", "enum": ["ONE DELUX AI 2.0", "ONE DELUX AI 3.0"]},
+        "models_used": {"type": "object", "properties": {
+          "home_goals": "string",
+          "away_goals": "string",
+          "total_goals": "string",
+          "over_under": "string"
+        }}
+      },
+      "status_response": {
+        "status": {"type": "string", "enum": ["ok"]},
+        "models_loaded": {"type": "integer", "minimum": 0}
+      },
+      "error_response": {
+        "detail": {"type": "string"},
+        "error_type": {"type": "string"},
+        "timestamp": {"type": "string", "format": "ISO8601"}
+      }
+    },
+    "error_handling": {
+      "http_codes": {
+        "200": {"description": "Success", "action": "process_response"},
+        "400": {"description": "Bad Request", "action": "fix_request_format"},
+        "404": {"description": "Model Not Found", "action": "check_model_name"},
+        "422": {"description": "Validation Error", "action": "fix_request_fields"},
+        "500": {"description": "Internal Server Error", "action": "retry_later"}
+      },
+      "retry_strategy": {
+        "max_retries": 3,
+        "backoff": "exponential",
+        "initial_delay": 1000
+      }
+    },
+    "examples": {
+      "curl": {
+        "basic_prediction": "curl -X POST https://ai-p-hcuo.onrender.com/api/predict -H 'Content-Type: application/json' -d '{\"league\":\"Champions League\",\"home_team\":\"Real Madrid\",\"away_team\":\"Barcelona\",\"home_odds\":2.1,\"draw_odds\":3.4,\"away_odds\":3.1,\"game_mode\":\"penalty\",\"game_version\":\"FC26\"}'"
+      },
+      "python": {
+        "client_import": "import requests\nimport json",
+        "basic_usage": "response = requests.post('https://ai-p-hcuo.onrender.com/api/predict', json={...})"
+      },
+      "javascript": {
+        "fetch_example": "fetch('https://ai-p-hcuo.onrender.com/api/predict', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({...})})"
+      }
+    },
+    "integration_checklist": {
+      "prerequisites": [
+        "Internet access",
+        "HTTP client capability",
+        "JSON parser",
+        "HTTP status code handling"
+      ],
+      "steps": [
+        "Test root endpoint",
+        "Verify system status",
+        "Test prediction endpoint",
+        "Implement error handling",
+        "Add performance monitoring",
+        "Configure client-side cache if needed"
+      ],
+      "validation": [
+        "Verify 16 models loaded",
+        "Test different prediction contexts",
+        "Validate response schemas",
+        "Test cache management",
+        "Verify response times"
+      ]
+    },
+    "support": {
+      "documentation": "https://ai-p-hcuo.onrender.com/docs",
+      "openapi_spec": "https://ai-p-hcuo.onrender.com/openapi.json",
+      "integration_guide": "INTEGRATION_MANIFEST_COMPLETE.md",
+      "status_page": "/health"
+    },
+    "metadata": {
+      "manifest_version": "1.0",
+      "created": "2026-06-09T15:00:00Z",
+      "updated": "2026-06-09T15:00:00Z",
+      "provider": "SOLITAIRE HACK",
+      "license": "proprietary",
+      "compatibility": {
+        "minimum_http_version": "1.1",
+        "required_features": ["POST", "GET", "JSON", "CORS"],
+        "recommended_timeout": 30
       }
     }
-  },
-  "example_request": {
-    "league": "Premier League",
-    "homeTeam": "Arsenal",
-    "awayTeam": "Chelsea",
-    "home_odds": 1.9,
-    "draw_odds": 3.4,
-    "away_odds": 4.2,
-    "home_form_rate": 0.7,
-    "away_form_rate": 0.6,
-    "home_attack_avg": 2.1,
-    "away_attack_avg": 1.8,
-    "home_defense_avg": 0.9,
-    "away_defense_avg": 1.2,
-    "head_to_head_matches": 10,
-    "head_to_head_home_winrate": 0.55
   }
 }
