@@ -12,7 +12,7 @@ class PredictionResponse(BaseModel):
     over_under_2_5: Literal["OVER", "UNDER"]
     score_prediction: str
     confidence: float = Field(..., ge=0.0, le=100.0)
-    source: Literal["ONE DELUX AI 2.0"]
+    source: Literal["ONE DELUX AI 2.0", "ONE DELUX AI 3.0"]
     # SOLITAIRE HACK: Informations sur les modèles utilisés
     models_used: dict[str, str] | None = Field(
         default=None,
