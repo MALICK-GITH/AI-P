@@ -261,9 +261,25 @@ class FeatureBuilder:
         return self._feature_columns
 
     @classmethod
-    def from_registry(cls, registry: object, model_name: str = "over_under_2.5.joblib") -> "FeatureBuilder":
-        artifact = registry.get(model_name) if hasattr(registry, "get") else registry.get_model(model_name)
-        return cls(feature_columns=artifact.feature_columns, label_encoders=artifact.label_encoders)
+    def from_registry(cls, registry: object, model_name: str = None) -> "FeatureBuilder":
+        """
+        SOLITAIRE HACK: Adapté pour fonctionner avec les nouveaux modèles .pkl.
+        Utilise le premier modèle disponible si aucun n'est spécifié.
+        """
+        # Si aucun modèle n'est spécifié, utiliser le premier disponible
+        if model_name is None:
+            if hasattr(registry, "model_names") and registry.model_names:
+                model_name = registry.model_names[0]
+            else:
+                # Fallback aux features par défaut
+                return cls(feature_columns=FEATURE_COLUMNS, label_encoders={})
+        
+        try:
+            artifact = registry.get(model_name) if hasattr(registry, "get") else registry.get_model(model_name)
+            return cls(feature_columns=artifact.feature_columns, label_encoders=artifact.label_encoders)
+        except (KeyError, AttributeError):
+            # SOLITAIRE HACK: Fallback aux features par défaut si le modèle n'est pas trouvé
+            return cls(feature_columns=FEATURE_COLUMNS, label_encoders={})
 
     def build_vector(self, request: PredictionRequest) -> FeatureVector:
         league_group = normalize_league_name(request.league)

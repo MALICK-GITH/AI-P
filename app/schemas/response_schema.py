@@ -13,6 +13,11 @@ class PredictionResponse(BaseModel):
     score_prediction: str
     confidence: float = Field(..., ge=0.0, le=100.0)
     source: Literal["ONE DELUX AI 2.0"]
+    # SOLITAIRE HACK: Informations sur les modèles utilisés
+    models_used: dict[str, str] | None = Field(
+        default=None,
+        description="Mapping of prediction types to model names used",
+    )
 
 
 class StatusResponse(BaseModel):

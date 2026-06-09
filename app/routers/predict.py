@@ -16,6 +16,20 @@ def _build_response(payload: dict) -> PredictionResponse:
 def predict(request: Request, body: PredictionRequest) -> PredictionResponse:
     service = request.app.state.prediction_service
     try:
+        # SOLITAIRE HACK: Utiliser le force_model si spécifié
+        if body.force_model:
+            # Adapter le service pour utiliser le modèle forcé
+            fusion_engine = service._fusion_engine
+            if hasattr(fusion_engine, '_model_router'):
+                # Temporairement modifier le comportement du routeur
+                original_select = fusion_engine._model_router.select_model_for_context
+                fusion_engine._model_router.select_model_for_context = lambda *args, **kwargs: body.force_model
+                try:
+                    result = service.predict_fusion(body)
+                    return _build_response(result)
+                finally:
+                    # Restaurer le comportement original
+                    fusion_engine._model_router.select_model_for_context = original_select
         return _build_response(service.predict_fusion(body))
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=f"Model not available: {exc.args[0]}") from exc

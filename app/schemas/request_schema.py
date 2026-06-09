@@ -31,4 +31,18 @@ class PredictionRequest(BaseModel):
     away_defense_avg: float = Field(default=1.5, ge=0.0, le=20.0)
     head_to_head_matches: int = Field(default=0, ge=0, le=1000)
     head_to_head_home_winrate: float = Field(default=0.5, ge=0.0, le=1.0)
+    
+    # SOLITAIRE HACK: Champs de contexte pour le routage intelligent de modèles
+    game_mode: str | None = Field(
+        default=None,
+        description="Game mode for model selection (penalty, 3x3, 4x4, 5x5, etc.)",
+    )
+    game_version: str | None = Field(
+        default=None,
+        description="Game version for model selection (FIFA23, FC24, FC25, FC26, etc.)",
+    )
+    force_model: str | None = Field(
+        default=None,
+        description="Force specific model name, bypassing intelligent routing",
+    )
 
